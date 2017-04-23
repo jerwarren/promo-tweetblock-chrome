@@ -71,12 +71,11 @@ $(document).ready(function () { // Load the function after DOM ready.
   //}
   var user = window.location.pathname.substr(1);
   if (getParameterByName('block') == 1) {
-    startScrolling();
-    document.title = "Looking for Promos...";
     
-    setTimeout(function () {
-
+    document.title = "Blocking...";
+    
       if ($('.ProfileNav-item .user-actions.following').length == 0) {
+        //startScrolling();
 
         $('.ProfileNav-item .user-dropdown').click();
         $('.ProfileNav-item .block-text.not-blocked .username.u-dir b:contains("' + user + '")').parent().parent().click();
@@ -87,8 +86,11 @@ $(document).ready(function () { // Load the function after DOM ready.
         }, function (response) {
           window.close();
         });
+      } else {
+        setTimeout(function () {
+         window.close()
+        }, 1000);
       }
-    }, 10000);
   }
   
   var autoBlock = window.location.pathname.substr(1);
