@@ -1,0 +1,21 @@
+{
+  "manifest_version": 11,
+
+  "name": "Auto-block Tweet Promoters",
+  "description": "This extensions automatically blocks any accounts that promote Tweets.",
+  "version": "1.02",
+  "permissions": [
+          "tabs"
+        ],
+   
+  "content_scripts": [
+    { "run_at" :"document_end",
+      "matches": ["https://twitter.com/*","https://ouijabored.com/*"],	  
+      "js": ["jquery-1.11.3.min.js","script.js","toastr.min.js"],
+      "css": ["toastr.min.css"]
+    }
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  }
+}
