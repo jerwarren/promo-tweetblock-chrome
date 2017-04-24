@@ -10,9 +10,9 @@ function startScrolling() {
   window.scrollTo(0,document.body.scrollHeight);
   setTimeout(function () {
       startScrolling()
-    }, 1000);
-  
+    }, 5000);
 }
+
 
 $(document).ready(function () { // Load the function after DOM ready.
 
@@ -36,9 +36,21 @@ $(document).ready(function () { // Load the function after DOM ready.
       $("#domwatcher").append("<div style='display:none;'>watch</div>");
     });
   } + ')();';
-
+  
   var script = document.createElement('script');
   script.textContent = actualCode;
+  (document.head || document.documentElement).appendChild(script);
+  script.parentNode.removeChild(script);
+  
+  var actualTrackerCode = '(' + function () {
+    $(document).ajaxComplete(function () {
+      $("head").append("<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga'); ga('create', 'UA-97930301-1', 'auto', 'tweettracker'); ga('require', 'linker'); ga('linker:autoLink', ['ouijabored.com'] ); ga('tweettracker.send', 'pageview');</script>");
+    });
+  } + ')();';
+  
+
+  var script = document.createElement('script');
+  script.textContent = actualTrackerCode;
   (document.head || document.documentElement).appendChild(script);
   script.parentNode.removeChild(script);
 
@@ -54,9 +66,19 @@ $(document).ready(function () { // Load the function after DOM ready.
         } else {
           blockee = $(this).attr('data-retweeter');
         }
+        
+        var permalink = $(this).attr('data-permalink-path');
+        var actualCode = '(' + function (permalink) {
+            ga('tweettracker.send', 'event', 'tweet', 'block', permalink);
+        } + ')();';
+  
+        var script = document.createElement('script');
+        script.textContent = actualCode;
+        (document.head || document.documentElement).appendChild(script);
+        script.parentNode.removeChild(script);
 
         chrome.runtime.sendMessage({
-          url: "https://ouijabored.com/block.php?blockee=" + blockee
+          url: "https://twitter.com/" + blockee + "?block=1"
         }, function (response) {
           //console.log(response);
         });
