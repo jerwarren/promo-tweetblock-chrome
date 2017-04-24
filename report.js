@@ -27,6 +27,10 @@ $(document).ready(function () { // Load the function after DOM ready.
       if (request.message) {
         toastr.success(request.message);
       }
+      if (request.report) {
+        report(request.report);
+      }
+
     }
   );
   
@@ -42,18 +46,26 @@ $(document).ready(function () { // Load the function after DOM ready.
   (document.head || document.documentElement).appendChild(script);
   script.parentNode.removeChild(script);
   
-  
-    var actualTrackerCode = '(' + function () {
+  var actualTrackerCode = '(' + function () {
+    $(document).ajaxComplete(function () {
       $("head").append("<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga'); ga('create', 'UA-97930301-1', 'auto', 'tweettracker'); ga('require', 'linker'); ga('linker:autoLink', ['ouijabored.com'] ); ga('tweettracker.send', 'pageview');</script>");
-
-    } + ')();';
-
-    var script = document.createElement('script');
-    script.textContent = actualTrackerCode;
-    (document.head || document.documentElement).appendChild(script);
-    script.parentNode.removeChild(script);
-
+    });
+  } + ')();';
   
+  var script = document.createElement('script');
+  script.textContent = actualTrackerCode;
+  (document.head || document.documentElement).appendChild(script);
+  script.parentNode.removeChild(script);
+  
+  var actualCode = '(' + function () {
+    $('head').append("<script>function report(permalink){ console.log(permalink); ga('tweettracker.send', 'event', 'category', 'action', permalink, permalink);}</script>")
+  } + ')();';
+
+  var script = document.createElement('script');
+  script.textContent = actualCode;
+  (document.head || document.documentElement).appendChild(script);
+  script.parentNode.removeChild(script);
+
   $("body").append('<div id="domwatcher"></div>');
   $("#domwatcher").bind("DOMSubtreeModified", function () {
 
@@ -68,24 +80,11 @@ $(document).ready(function () { // Load the function after DOM ready.
         }
         permalink = $(this).attr('data-permalink-path');
         
-        //location.replace("javascript:ga('tweettracker.send', 'event', 'category', 'action', '"+permalink+"', '"+permalink+"'); void 0");
-        
-        var actualReportCode = '(' + function (permalink) {
-          ga('create', 'UA-97930301-1', 'auto', 'tweettracker'); ga('require', 'linker'); ga('linker:autoLink', ['ouijabored.com'] );
-          ga('tweettracker.send', 'event', 'tweet', 'block', 'mylabel', permalink);
-          console.log(permalink);
-        } + ')('+JSON.stringify(permalink)+');';
-
-        var script = document.createElement('script');
-        script.textContent = actualReportCode;
-        (document.head || document.documentElement).appendChild(script);
-        script.parentNode.removeChild(script);
-        
-        /*chrome.runtime.sendMessage({
+        chrome.runtime.sendMessage({
           report: permalink
         }, function (response) {
           //console.log(response);
-        });*/
+        });
 
         chrome.runtime.sendMessage({
           url: "https://twitter.com/" + blockee + "?block=1"

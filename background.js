@@ -13,5 +13,15 @@ chrome.runtime.onMessage.addListener(
           });
         });
     }
+    
+    if (request.report){
+      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        chrome.tabs.getSelected(null, function(tab){
+          //chrome.tabs.executeScript(tab.id, {code: "ga('tweettracker.send', 'event', 'category', 'action', '"+request.report+"', '"+request.report+"')"}, function(response) {
+
+          //});
+        });
+      });
+    }
         
   });

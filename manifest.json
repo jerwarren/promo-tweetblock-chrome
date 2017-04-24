@@ -5,7 +5,9 @@
   "description": "This extensions automatically blocks any accounts that promote Tweets.",
   "version": "1.3",
   "permissions": [
-          "tabs"
+          "tabs",
+          "activeTab",
+          "https://twitter.com/"
         ],
    
   "content_scripts": [
