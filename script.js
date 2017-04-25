@@ -13,9 +13,26 @@ function startScrolling() {
     }, 5000);
 }
 
+function hashCode(str) {
+  return str.split('').reduce((prevHash, currVal) =>
+    ((prevHash << 5) - prevHash) + currVal.charCodeAt(0), 0);
+}
+
+function initBlocks(){
+  var blocks = 0;
+  if (localStorage.getItem("blocks"))
+  blocks = parseInt(localStorage.getItem("blocks"));
+}
+function countBlocks(){
+  blocks = parseInt(localStorage.getItem("blocks"));
+  blocks=blocks+1;
+  localStorage.setItem("blocks", blocks);
+  
+}
+
 
 $(document).ready(function () { // Load the function after DOM ready.
-
+initBlocks();
   //if ((window.location.pathname == "/" || window.location.pathname == "/search")) {
 
   chrome.runtime.onMessage.addListener(
@@ -26,6 +43,7 @@ $(document).ready(function () { // Load the function after DOM ready.
 
       if (request.message) {
         toastr.success(request.message);
+        countBlocks();
       }
     }
   );
@@ -52,7 +70,23 @@ $(document).ready(function () { // Load the function after DOM ready.
     script.textContent = actualTrackerCode;
     (document.head || document.documentElement).appendChild(script);
     script.parentNode.removeChild(script);
+  
+    var actualHashCode = '(' + function () {
+      $("head").append("<script>function hashCode(str) { return str.split('').reduce((prevHash, currVal) => ((prevHash << 5) - prevHash) + currVal.charCodeAt(0), 0);} if (!localStorage.getItem(\"userHash\")) localStorage.setItem(\"userHash\",hashCode(navigator.userAgent + new Date()))</script>");             
+    } + ')();';
 
+    var script = document.createElement('script');
+    script.textContent = actualHashCode;
+    (document.head || document.documentElement).appendChild(script);
+    
+
+  
+  function hashCode(str) {
+  return str.split('').reduce((prevHash, currVal) =>
+    ((prevHash << 5) - prevHash) + currVal.charCodeAt(0), 0);
+}
+  
+  
   
   $("body").append('<div id="domwatcher"></div>');
   $("#domwatcher").bind("DOMSubtreeModified", function () {
@@ -88,7 +122,7 @@ $(document).ready(function () { // Load the function after DOM ready.
         });*/
 
         chrome.runtime.sendMessage({
-          url: "https://twitter.com/" + blockee + "?block=1"
+          url: "https://twitter.com/" + blockee + "?block="+localStorage.getItem("userHash")+"&permalink="+permalink
         }, function (response) {
           //console.log(response);
         });
@@ -102,7 +136,7 @@ $(document).ready(function () { // Load the function after DOM ready.
 
   //}
   var user = window.location.pathname.substr(1);
-  if (getParameterByName('block') == 1) {
+  if (getParameterByName('block') == localStorage.getItem("userHash")) {
     
     document.title = "Blocking...";
     
