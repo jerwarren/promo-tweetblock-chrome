@@ -22,6 +22,8 @@ function initBlocks(){
   var blocks = 0;
   if (localStorage.getItem("blocks"))
   blocks = parseInt(localStorage.getItem("blocks"));
+  if (!localStorage.getItem("userHash"))
+    localStorage.setItem("userHash",hashCode(navigator.userAgent + new Date()));
 }
 function countBlocks(){
   blocks = parseInt(localStorage.getItem("blocks"));
@@ -71,14 +73,14 @@ initBlocks();
     (document.head || document.documentElement).appendChild(script);
     script.parentNode.removeChild(script);
   
-    var actualHashCode = '(' + function () {
+    /*var actualHashCode = '(' + function () {
       $("head").append("<script>function hashCode(str) { return str.split('').reduce((prevHash, currVal) => ((prevHash << 5) - prevHash) + currVal.charCodeAt(0), 0);} if (!localStorage.getItem(\"userHash\")) localStorage.setItem(\"userHash\",hashCode(navigator.userAgent + new Date()))</script>");             
     } + ')();';
 
     var script = document.createElement('script');
     script.textContent = actualHashCode;
     (document.head || document.documentElement).appendChild(script);
-    
+    */
 
   
   function hashCode(str) {
@@ -127,18 +129,23 @@ initBlocks();
           //console.log(response);
         });
 
-        (this).remove();
+        $(this).remove();
       } else {
         console.log("found promoted, but skipping")
       }
     });
+    /*if (getParameterByName('autoblock') == 1) {
+      setTimeout(
+      $('[data-permalink-path]').each(function (i, v) {
+        
+        $(this).remove();
+      }), 5000);
+    }*/
   });
 
   //}
   var user = window.location.pathname.substr(1);
   if (getParameterByName('block') == localStorage.getItem("userHash")) {
-    
-    document.title = "Blocking...";
     
       if ($('.ProfileNav-item .user-actions.following').length == 0) {
         //startScrolling();
@@ -162,6 +169,7 @@ initBlocks();
   var autoBlock = window.location.pathname.substr(1);
   if (getParameterByName('autoblock') == 1) {
     startScrolling();
+    
   
   }
     
