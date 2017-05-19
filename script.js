@@ -20,10 +20,24 @@ function hashCode(str) {
 
 function initBlocks(){
   var blocks = 0;
+  
   if (localStorage.getItem("blocks"))
   blocks = parseInt(localStorage.getItem("blocks"));
-  if (!localStorage.getItem("userHash"))
-    localStorage.setItem("userHash",hashCode(navigator.userAgent + new Date()));
+  
+  
+  if (!localStorage.getItem("userHash")){
+    var hash = hashCode(navigator.userAgent + new Date());
+    localStorage.setItem("userHash", hash);
+    chrome.storage.sync.set({
+      hash: hash
+    });
+  } else {
+    chrome.storage.sync.set({
+      hash: localStorage.getItem("userHash")
+    });
+  }
+
+  
 }
 function countBlocks(){
   blocks = parseInt(localStorage.getItem("blocks"));
@@ -34,14 +48,12 @@ function countBlocks(){
 
 
 $(document).ready(function () { // Load the function after DOM ready.
-initBlocks();
+  initBlocks();
+  
   //if ((window.location.pathname == "/" || window.location.pathname == "/search")) {
 
   chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
-      console.log(sender.tab ?
-        "from a content script:" + sender.tab.url :
-        "from the extension");
 
       if (request.message) {
         toastr.success(request.message);
@@ -63,31 +75,10 @@ initBlocks();
   script.parentNode.removeChild(script);
   
   
-    var actualTrackerCode = '(' + function () {
-      $("head").append("<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga'); ga('create', 'UA-97930301-1', 'auto', 'tweettracker'); ga('require', 'linker'); ga('linker:autoLink', ['ouijabored.com'] ); ga('tweettracker.send', 'pageview');</script>");
-
-    } + ')();';
-
-    var script = document.createElement('script');
-    script.textContent = actualTrackerCode;
-    (document.head || document.documentElement).appendChild(script);
-    script.parentNode.removeChild(script);
-  
-    /*var actualHashCode = '(' + function () {
-      $("head").append("<script>function hashCode(str) { return str.split('').reduce((prevHash, currVal) => ((prevHash << 5) - prevHash) + currVal.charCodeAt(0), 0);} if (!localStorage.getItem(\"userHash\")) localStorage.setItem(\"userHash\",hashCode(navigator.userAgent + new Date()))</script>");             
-    } + ')();';
-
-    var script = document.createElement('script');
-    script.textContent = actualHashCode;
-    (document.head || document.documentElement).appendChild(script);
-    */
-
-  
   function hashCode(str) {
   return str.split('').reduce((prevHash, currVal) =>
     ((prevHash << 5) - prevHash) + currVal.charCodeAt(0), 0);
 }
-  
   
   
   $("body").append('<div id="domwatcher"></div>');
@@ -104,27 +95,9 @@ initBlocks();
         }
         permalink = $(this).attr('data-permalink-path');
         
-        //location.replace("javascript:ga('tweettracker.send', 'event', 'category', 'action', '"+permalink+"', '"+permalink+"'); void 0");
-        
-        var actualReportCode = '(' + function (permalink) {
-          ga('create', 'UA-97930301-1', 'auto', 'tweettracker'); ga('require', 'linker'); ga('linker:autoLink', ['ouijabored.com'] );
-          ga('tweettracker.send', 'event', 'tweet', 'block', 'mylabel', permalink);
-          console.log(permalink);
-        } + ')('+JSON.stringify(permalink)+');';
-
-        var script = document.createElement('script');
-        script.textContent = actualReportCode;
-        (document.head || document.documentElement).appendChild(script);
-        script.parentNode.removeChild(script);
-        
-        /*chrome.runtime.sendMessage({
-          report: permalink
-        }, function (response) {
-          //console.log(response);
-        });*/
 
         chrome.runtime.sendMessage({
-          url: "https://twitter.com/" + blockee + "?block="+localStorage.getItem("userHash")+"&permalink="+permalink
+          url: "https://twitter.com/" + blockee + "?block="+localStorage.getItem("userHash")
         }, function (response) {
           //console.log(response);
         });
@@ -144,9 +117,11 @@ initBlocks();
   });
 
   //}
-  var user = window.location.pathname.substr(1);
+  
   if (getParameterByName('block') == localStorage.getItem("userHash")) {
-    
+    var user = window.location.pathname.substr(1);
+  user = $('b.u-linkComplex-target')[1].innerHTML;
+  console.log(user);
       if ($('.ProfileNav-item .user-actions.following').length == 0) {
         //startScrolling();
 
@@ -155,13 +130,14 @@ initBlocks();
         $('#block-dialog .block-button').click();
 
         chrome.runtime.sendMessage({
-          message: "Blocked @" + user + " for Tweet Promotion"
+          message: "Blocked @" + user + " for Tweet Promotion",
+          close: true
         }, function (response) {
           window.close();
         });
       } else {
         setTimeout(function () {
-         window.close()
+         window.close();
         }, 1000);
       }
   }

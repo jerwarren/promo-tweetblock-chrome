@@ -28,5 +28,12 @@ chrome.runtime.onMessage.addListener(
           });
       });
     }
+    if (request.close){
+      myTab = sender.id;
+      chrome.tabs.remove(sender.id);
+    }
+    if (request.new){
+      chrome.tabs.create({'url': "/options.html?continue=1", 'active': false} );
+    }
         
   });

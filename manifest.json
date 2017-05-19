@@ -3,10 +3,11 @@
 
   "name": "Auto-block Tweet Promoters",
   "description": "This extensions automatically blocks any accounts that promote Tweets.",
-  "version": "1.4",
+  "version": "1.5",
   "permissions": [
           "tabs",
           "activeTab",
+          "storage",
           "https://twitter.com/"
         ],
    
@@ -25,5 +26,7 @@
     "default_icon": {           
         "64": "logo.png"
     }
-  }
+  },
+  "options_page": "options.html",
+  "web_accessible_resources": ["/options.html"]
 }
