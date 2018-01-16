@@ -1,9 +1,9 @@
 {
   "manifest_version": 15,
-
+  "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
   "name": "Auto-block Tweet Promoters",
   "description": "This extensions automatically blocks any accounts that promote Tweets.",
-  "version": "1.5",
+  "version": "1.6",
   "permissions": [
           "tabs",
           "activeTab",

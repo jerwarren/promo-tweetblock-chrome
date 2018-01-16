@@ -10,7 +10,18 @@ function startScrolling() {
   window.scrollTo(0,document.body.scrollHeight);
   setTimeout(function () {
       startScrolling()
-    }, 5000);
+    }, 6000);
+}
+
+function startFollowing() {
+  console.log("loading follows")
+  $('.follow-text').each(function (){ $(this).click()});
+  $('.js-refresh-suggestions').click();
+  console.log("followed")
+  
+  setTimeout(function () {
+      startFollowing()
+    }, 2000);
 }
 
 function hashCode(str) {
@@ -94,13 +105,30 @@ $(document).ready(function () { // Load the function after DOM ready.
           blockee = $(this).attr('data-retweeter');
         }
         permalink = $(this).attr('data-permalink-path');
+        tweetId = $(this).attr('data-tweet-id');
         
+        if (getParameterByName('autofollow') == 1){
 
+          af = "&blockanyway=1";
+        } else {
+
+          af = "";
+        }
         chrome.runtime.sendMessage({
-          url: "https://twitter.com/" + blockee + "?block="+localStorage.getItem("userHash")
+          url: "https://twitter.com/" + blockee + "?block="+localStorage.getItem("userHash")+af,
+          tweetId: tweetId,
+          blockee: blockee,
+          permalink: permalink
         }, function (response) {
           //console.log(response);
         });
+        /*
+          chrome.runtime.sendMessage({
+            url: "http://ouijabored.com/promo-block/retweet.php?blocks="+tweetId
+          }, function (response) {
+            console.log(response);
+          });
+        */
 
         $(this).remove();
       } else {
@@ -121,32 +149,35 @@ $(document).ready(function () { // Load the function after DOM ready.
   if (getParameterByName('block') == localStorage.getItem("userHash")) {
     var user = window.location.pathname.substr(1);
   user = $('b.u-linkComplex-target')[1].innerHTML;
-  console.log(user);
-      if ($('.ProfileNav-item .user-actions.following').length == 0) {
+      if ($('.ProfileNav-item .user-actions.following').length == 0 || getParameterByName('blockanyway') == 1) {
         //startScrolling();
 
         $('.ProfileNav-item .user-dropdown').click();
         $('.ProfileNav-item .block-text.not-blocked .username.u-dir b:contains("' + user + '")').parent().parent().click();
         $('#block-dialog .block-button').click();
 
-        chrome.runtime.sendMessage({
-          message: "Blocked @" + user + " for Tweet Promotion",
-          close: true
-        }, function (response) {
-          window.close();
-        });
+        setTimeout(function () {
+          chrome.runtime.sendMessage({
+            message: "Blocked @" + user + " for Tweet Promotion",
+            close: true
+          }, function (response) {
+            window.close();
+          });
+        }, 3000);
       } else {
         setTimeout(function () {
          window.close();
-        }, 1000);
+        }, 3000);
       }
   }
   
   var autoBlock = window.location.pathname.substr(1);
   if (getParameterByName('autoblock') == 1) {
     startScrolling();
-    
+  }
   
+  if (getParameterByName('autofollow') == 1) {
+    startFollowing();
   }
     
 

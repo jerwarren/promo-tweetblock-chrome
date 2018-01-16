@@ -42,6 +42,7 @@ function iterateAccounts() {
             url: "https://twitter.com/" + account + "?block="+localStorage.getItem("userHash")
           }, function (response) {
             //console.log(response);
+		ga('send', 'pageview', '/'+account);
         });
       }
       accountArray = accountArray.splice(max);
